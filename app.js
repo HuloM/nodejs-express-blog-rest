@@ -31,13 +31,14 @@ const fileFilter = (req, file, cb) => {
 }
 
 app.use(express.json())
-// able to get images from localhost:8080/images/<image file>
+// able to get images from localhost:8080/images/<image file> without publicly exposing the directory public/images
 app.use('/images', express.static(path.join(__dirname, 'public/images')))
 // configuring express app to use multer with the settings setup above, and only accept a single file upload per request
 app.use(multer({storage: storage, fileFilter: fileFilter }).single('image'))
 
 app.use(postRoutes)
 
+// connects to the mongoDB db and if successful will start up server
 mongoose.connect(MONGODB_URI)
     .then(result => {
         console.log('Server Active')

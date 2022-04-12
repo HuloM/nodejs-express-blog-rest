@@ -12,7 +12,7 @@ router.post('/posts', postsController.postPost)
 
 router.put('/posts')
 
-router.delete('/posts')
+router.delete('/posts', postsController.deletePost)
 
 
 router.post('/posts/comments')
