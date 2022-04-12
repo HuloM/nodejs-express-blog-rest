@@ -6,11 +6,11 @@ const router = express.Router()
 
 router.get('/posts', postsController.getPosts)
 
-router.get('/posts/:postId')
+router.get('/posts/:postId', postsController.getPost)
 
 router.post('/posts', postsController.postPost)
 
-router.put('/posts')
+router.put('/posts', postsController.updatePost)
 
 router.delete('/posts', postsController.deletePost)
 
