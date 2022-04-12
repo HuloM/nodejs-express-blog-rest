@@ -14,14 +14,17 @@ exports.getPosts = async (req, res, next) => {
 
 exports.postPost = async (req, res, next) => {
     try {
+
         const title = req.body.title
         const body = req.body.body
+        const image = req.file.path.replace("\\", "/")
+
 
         const post = await new Post({
             title: title,
             body: body,
-            imageUrl: '',
-            creator: null,
+            imageUrl: image,
+            author: null,
         }).save()
         res.status(201).json({
             message: 'Post Created Successfully',
