@@ -37,3 +37,30 @@ exports.signup = async (req, res, next) => {
         console.log(err)
     }
 }
+
+exports.login = async (req, res, next) => {
+    try {
+        // since username is not unique we dont want to check for username as we will get more than one
+        const email = req.body.email
+        const password = req.body.password
+
+        const user = await User.findOne({email: email})
+
+        if (!user)
+            return res.status(422).json({
+                message: `user with email: ${email} not found`,
+            })
+        // eventually we will change how we check password
+        if (password !== user.password)
+            return res.status(422).json({
+                message: 'incorrect password',
+            })
+        res.status(201).json({
+            message: 'user has been logged in',
+            user: {id: user._id, username: user.username},
+        })
+    } catch (err) {
+        console.log(err)
+    }
+}
+
