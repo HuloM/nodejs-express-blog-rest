@@ -6,6 +6,7 @@ require('dotenv').config()
 const multer = require('multer')
 
 const postRoutes = require('./routes/post-routes')
+const userRoutes = require('./routes/user-routes')
 
 const MONGODB_URI = process.env.MONGODB_HOST
 
@@ -37,6 +38,7 @@ app.use('/images', express.static(path.join(__dirname, 'public/images')))
 app.use(multer({storage: storage, fileFilter: fileFilter }).single('image'))
 
 app.use(postRoutes)
+app.use(userRoutes)
 
 // connects to the mongoDB db and if successful will start up server
 mongoose.connect(MONGODB_URI)
