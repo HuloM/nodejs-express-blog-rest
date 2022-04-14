@@ -1,3 +1,5 @@
+const bcrypt = require('bcryptjs')
+
 const User = require("../models/user")
 
 exports.signup = async (req, res, next) => {
@@ -21,13 +23,14 @@ exports.signup = async (req, res, next) => {
             return res.status(422).json({
                 message: 'passwords must match',
             })
-
+        // hashing password with 12 rounds of salting
+        const hashedPass = await bcrypt.hash(password, 12)
         const user = await new User({
             username: username,
             first_name: first_name,
             last_name: last_name,
             email: email,
-            password: password // password will be hashed later
+            password: hashedPass
         }).save()
         res.status(201).json({
             message: 'user has been signed up',
@@ -40,18 +43,18 @@ exports.signup = async (req, res, next) => {
 
 exports.login = async (req, res, next) => {
     try {
-        // since username is not unique we dont want to check for username as we will get more than one
+        // since username is not unique we don't want to check for username as we will get more than one
         const email = req.body.email
         const password = req.body.password
 
         const user = await User.findOne({email: email})
-
         if (!user)
             return res.status(422).json({
                 message: `user with email: ${email} not found`,
             })
-        // eventually we will change how we check password
-        if (password !== user.password)
+
+        const passwordMatch = await bcrypt.compare(password, user.password)
+        if (!passwordMatch)
             return res.status(422).json({
                 message: 'incorrect password',
             })
