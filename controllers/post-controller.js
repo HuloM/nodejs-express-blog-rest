@@ -64,7 +64,9 @@ exports.postPost = async (req, res, next) => {
         const author = await User.findById(userId)
 
         if (!author)
-            throwError('user not found', 422)
+            return res.status(422).json({
+                message: 'user not found'
+            })
 
         const post = await new Post({
             title: title,
@@ -88,8 +90,14 @@ exports.postPost = async (req, res, next) => {
 exports.updatePost = async (req, res, next) => {
     try {
         const postId = req.params.postId
-
+        const userId = req.userId
         const post = await Post.findById(postId)
+
+        if (post.author.toString() !== userId)
+            return res.status(401).json({
+                message: 'user is not author of post'
+            })
+
         // if multer parsed info then grab that if not then grab post elements
         const title = req.body.title || post.title
         const body = req.body.body || post.body
@@ -119,7 +127,13 @@ exports.updatePost = async (req, res, next) => {
 exports.deletePost = async (req, res, next) => {
     try {
         const postId = req.params.postId
+        const userId = req.userId
         const post = await Post.findById(postId)
+
+        if (post.author.toString() !== userId)
+            return res.status(401).json({
+                message: 'user is not author of post'
+            })
 
         clearImage(post.imageUrl)
 
@@ -134,7 +148,10 @@ exports.deletePost = async (req, res, next) => {
     }
 }
 
-const clearImage = imagePath => {
+const clearImage = async imagePath => {
     let filePath = path.join(__dirname, '..', imagePath)
-    unlink(filePath, err => throwError(err, 500))
+    await unlink(filePath, err => {
+        if (err)
+            throwError(err, 500)
+    })
 }

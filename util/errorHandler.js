@@ -1,4 +1,4 @@
-exports.nextError = (next, err, errorCode) => {
+exports.nextError = (err, errorCode, next) => {
     if (err.statusCode)
         err.statusCode = errorCode
     next(err)
