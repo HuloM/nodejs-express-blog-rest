@@ -1,30 +1,23 @@
 const bcrypt = require('bcryptjs')
-require('dotenv').config()
 const jwt = require('jsonwebtoken')
+const {validationResult} = require("express-validator")
+require('dotenv').config()
 
 const User = require("../models/user")
 
 exports.signup = async (req, res, next) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
+        }
+
         const username = req.body.username
         const email = req.body.email
-
-        const userExists = await User.findOne({email: email})
-
-        if (userExists)
-            return res.status(422).json({
-                message: `user with email: ${email} already exists`,
-            })
-
         const first_name = req.body.first_name
         const last_name = req.body.last_name
         const password = req.body.password
-        const confirmPassword = req.body.confirmPassword
 
-        if (password !== confirmPassword)
-            return res.status(422).json({
-                message: 'passwords must match',
-            })
         // hashing password with 12 rounds of salting
         const hashedPass = await bcrypt.hash(password, 12)
         const user = await new User({
