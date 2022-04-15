@@ -28,27 +28,32 @@ exports.getPosts = async (req, res, next) => {
         res.status(200).json({
             posts: posts
         })
-
     } catch (err) {
-        throwError(err, 500)
+        return throwError(err, 500, next)
     }
 }
 
 exports.getPost = async (req, res, next) => {
     try {
         const postId = req.params.postId
+
         const post = await Post.findById(postId)
             .populate('author')
             .populate('comments')
+
+        if (!post)
+            return throwError('post not found', 404, next)
+
         post.author = {
             _id: post.author._id,
             username: post.author.username,
         }
+
         res.status(200).json({
             post: post
         })
     } catch (err) {
-        throwError(err, 500)
+        return throwError(err, 500, next)
     }
 }
 
@@ -64,9 +69,7 @@ exports.postPost = async (req, res, next) => {
         const author = await User.findById(userId)
 
         if (!author)
-            return res.status(422).json({
-                message: 'user not found'
-            })
+            return throwError('user not found', 404, next)
 
         const post = await new Post({
             title: title,
@@ -83,7 +86,7 @@ exports.postPost = async (req, res, next) => {
             post: post,
         })
     } catch (err) {
-        throwError(err, 500)
+        throwError(err, 500, next)
     }
 }
 
@@ -91,16 +94,18 @@ exports.updatePost = async (req, res, next) => {
     try {
         const postId = req.params.postId
         const userId = req.userId
+
         const post = await Post.findById(postId)
 
+        if (!post)
+            return throwError('post not found', 404, next)
         if (post.author.toString() !== userId)
-            return res.status(401).json({
-                message: 'user is not author of post'
-            })
+            return throwError('user is not author of post', 401, next)
 
         // if multer parsed info then grab that if not then grab post elements
         const title = req.body.title || post.title
         const body = req.body.body || post.body
+
         let imageUrl = req.body.image || post.imageUrl
         if (req.file) {
             imageUrl = req.file.path.replace("\\", "/")
@@ -120,7 +125,7 @@ exports.updatePost = async (req, res, next) => {
             post: post,
         })
     } catch (err) {
-        throwError(err, 500)
+        throwError(err, 500, next)
     }
 }
 
@@ -130,10 +135,10 @@ exports.deletePost = async (req, res, next) => {
         const userId = req.userId
         const post = await Post.findById(postId)
 
+        if (!post)
+            return throwError('post not found', 404, next)
         if (post.author.toString() !== userId)
-            return res.status(401).json({
-                message: 'user is not author of post'
-            })
+            return throwError('user is not author of post', 401, next)
 
         clearImage(post.imageUrl)
 
@@ -144,7 +149,7 @@ exports.deletePost = async (req, res, next) => {
             post: post
         })
     } catch (err) {
-        throwError(err, 500)
+        return throwError(err, 500, next)
     }
 }
 
@@ -156,9 +161,7 @@ exports.postComment = async (req, res, next) => {
         const post = await Post.findById(postId)
 
         if (!post)
-            return res.status(404).json({
-                message: 'post not found'
-            })
+            return throwError('post not found', 404, next)
 
         const comment = await new Comment({
             comment: commentBody,
@@ -175,7 +178,7 @@ exports.postComment = async (req, res, next) => {
             postId: postId
         })
     } catch (err) {
-        throwError(err, 500)
+        throwError(err, 500, next)
     }
 }
 

@@ -26,6 +26,6 @@ router.put('/signup',
 
 router.post('/login', userController.login)
 
-router.delete('/user', authenticate)
+router.delete('/user', authenticate, userController.deleteUser)
 
 module.exports = router

@@ -4,6 +4,8 @@ const {validationResult} = require("express-validator")
 require('dotenv').config()
 
 const User = require("../models/user")
+const {throwError} = require("../util/errorHandler")
+const mongoose = require("mongoose")
 
 exports.signup = async (req, res, next) => {
     try {
@@ -32,7 +34,7 @@ exports.signup = async (req, res, next) => {
             user: {id: user._id, username: user.username},
         })
     } catch (err) {
-        console.log(err)
+        return throwError(err, 500, next)
     }
 }
 
@@ -44,15 +46,11 @@ exports.login = async (req, res, next) => {
 
         const user = await User.findOne({email: email})
         if (!user)
-            return res.status(422).json({
-                message: `user with email: ${email} not found`,
-            })
+            return throwError(`user with email: ${email} not found`, 404, next)
 
         const passwordMatch = await bcrypt.compare(password, user.password)
         if (!passwordMatch)
-            return res.status(422).json({
-                message: 'incorrect password',
-            })
+            return throwError('incorrect password', 401, next)
         // https://jwt.io/ can visually see decoded tokens here by copy-pasting the response token you get
         const token = jwt.sign({
             user: {id: user._id, username: user.username}
@@ -63,7 +61,31 @@ exports.login = async (req, res, next) => {
             token: token
         })
     } catch (err) {
-        console.log(err)
+        return throwError(err, 500, next)
+    }
+}
+
+exports.deleteUser = async (req, res, next) => {
+    try {
+        const userId = req.userId
+        const password = req.body.password
+
+        const user = await User.findOne({_id: userId})
+        if (!user)
+            return throwError(`user not found`, 404, next)
+
+        const passwordMatch = await bcrypt.compare(password, user.password)
+        if (!passwordMatch)
+            return throwError('incorrect password', 401, next)
+
+        await User.deleteOne({_id: mongoose.Types.ObjectId(userId)})
+
+        res.status(200).json({
+            message: 'User deleted',
+            user: user
+        })
+    } catch (err) {
+        return throwError(err, 500, next)
     }
 }
 

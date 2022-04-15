@@ -1,11 +1,8 @@
-exports.nextError = (err, errorCode, next) => {
-    if (err.statusCode)
-        err.statusCode = errorCode
-    next(err)
-}
-
-exports.throwError = (err, errorCode) => {
+exports.throwError = (err, errorCode, next) => {
     const error = new Error(err)
     error.statusCode = errorCode
-    throw error
+    if (next)
+        next(error)
+    else
+        throw error
 }
