@@ -148,6 +148,35 @@ exports.deletePost = async (req, res, next) => {
     }
 }
 
+exports.postComment = async (req, res, next) => {
+    try {
+        const postId = req.params.postId
+        const userId = req.userId
+        const commentBody = req.body.comment
+        const post = await Post.findById(postId)
+
+        if (!post)
+            return res.status(404).json({
+                message: 'post not found'
+            })
+
+        const comment = await new Comment({
+            comment: commentBody,
+            post: postId,
+            author: userId
+        }).save()
+        post.comments.push(comment)
+        await post.save()
+        res.status(200).json({
+            message: 'comment created',
+            comment: comment,
+            postId: postId
+        })
+    } catch (err) {
+        throwError(err, 500)
+    }
+}
+
 const clearImage = async imagePath => {
     let filePath = path.join(__dirname, '..', imagePath)
     await unlink(filePath, err => {
