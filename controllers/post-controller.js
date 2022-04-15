@@ -165,8 +165,10 @@ exports.postComment = async (req, res, next) => {
             post: postId,
             author: userId
         }).save()
+
         post.comments.push(comment)
         await post.save()
+
         res.status(200).json({
             message: 'comment created',
             comment: comment,

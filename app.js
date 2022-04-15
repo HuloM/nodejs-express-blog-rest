@@ -40,6 +40,15 @@ app.use(multer({storage: storage, fileFilter: fileFilter }).single('image'))
 app.use(postRoutes)
 app.use(userRoutes)
 
+// default error handler for express
+app.use((error, req, res, next) => {
+    console.log(error)
+    const status = error.statusCode || 500
+    const message = error.message
+    const data = error.data
+    res.status(status).json({message: message, data: data})
+})
+
 // connects to the mongoDB db and if successful will start up server
 mongoose.connect(MONGODB_URI)
     .then(result => {
