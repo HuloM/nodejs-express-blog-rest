@@ -1,19 +1,36 @@
-const Post = require('../models/post')
 const path = require("path")
 const {unlink} = require("fs")
 
+const Post = require('../models/post')
+const User = require('../models/user')
+const Comment = require('../models/comment')
+const {throwError} = require('../util/errorHandler')
+
 exports.getPosts = async (req, res, next) => {
     try {
-        // . find() is a method that mongoose creates for it's schemas (returns all documents by default)
+
+        // . find() is a method that mongoose creates for its schemas (returns all documents by default)
         const posts = await Post.find()
             // populate() grabs the related data to the reference collection
             // here we are grabbing the user document that belongs to the post
             .populate('author')
+
+        posts.map((post) => {
+            // mapping out data I don't want the front-end to have
+            post.author = {
+                _id: post.author._id,
+                username: post.author.username,
+            }
+            post.comments = undefined
+            return post
+        })
+
         res.status(200).json({
             posts: posts
         })
+
     } catch (err) {
-        console.log(err)
+        throwError(err, 500)
     }
 }
 
@@ -21,11 +38,17 @@ exports.getPost = async (req, res, next) => {
     try {
         const postId = req.params.postId
         const post = await Post.findById(postId)
+            .populate('author')
+            .populate('comments')
+        post.author = {
+            _id: post.author._id,
+            username: post.author.username,
+        }
         res.status(200).json({
             post: post
         })
     } catch (err) {
-        console.log(err)
+        throwError(err, 500)
     }
 }
 
@@ -37,18 +60,28 @@ exports.postPost = async (req, res, next) => {
         // multer grabs the image and puts it onto the req.file object
         const image = req.file.path.replace("\\", "/")
 
+        const userId = req.userId
+        const author = await User.findById(userId)
+
+        if (!author)
+            throwError('user not found', 422)
+
         const post = await new Post({
             title: title,
             body: body,
             imageUrl: image,
-            author: null,
+            author: author._id,
         }).save()
+
+        author.posts.push()
+        await author.save()
+
         res.status(201).json({
             message: 'Post Created Successfully',
             post: post,
         })
     } catch (err) {
-        console.log(err)
+        throwError(err, 500)
     }
 }
 
@@ -79,13 +112,13 @@ exports.updatePost = async (req, res, next) => {
             post: post,
         })
     } catch (err) {
-        console.log(err)
+        throwError(err, 500)
     }
 }
 
 exports.deletePost = async (req, res, next) => {
     try {
-        const postId = req.body.postId
+        const postId = req.params.postId
         const post = await Post.findById(postId)
 
         clearImage(post.imageUrl)
@@ -97,11 +130,11 @@ exports.deletePost = async (req, res, next) => {
             post: post
         })
     } catch (err) {
-        console.log(err)
+        throwError(err, 500)
     }
 }
 
 const clearImage = imagePath => {
     let filePath = path.join(__dirname, '..', imagePath)
-    unlink(filePath, err => console.log(err))
+    unlink(filePath, err => throwError(err, 500))
 }
