@@ -1,4 +1,6 @@
 const bcrypt = require('bcryptjs')
+require('dotenv').config()
+const jwt = require('jsonwebtoken')
 
 const User = require("../models/user")
 
@@ -58,9 +60,14 @@ exports.login = async (req, res, next) => {
             return res.status(422).json({
                 message: 'incorrect password',
             })
+        // https://jwt.io/ can visually see decoded tokens here by copy-pasting the response token you get
+        const token = jwt.sign({
+            user: {id: user._id, username: user.username}
+        }, process.env.JWT_SECRET_KEY, { expiresIn: '1h' })
+
         res.status(201).json({
             message: 'user has been logged in',
-            user: {id: user._id, username: user.username},
+            token: token
         })
     } catch (err) {
         console.log(err)
