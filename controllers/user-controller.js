@@ -31,7 +31,7 @@ exports.signup = async (req, res, next) => {
         }).save()
         res.status(201).json({
             message: 'user has been signed up',
-            user: {id: user._id, username: user.username},
+            user: user.toJSON(),
         })
     } catch (err) {
         return throwError(err, 500, next)
@@ -58,31 +58,9 @@ exports.login = async (req, res, next) => {
 
         res.status(201).json({
             message: 'user has been logged in',
-            token: token
-        })
-    } catch (err) {
-        return throwError(err, 500, next)
-    }
-}
-
-exports.deleteUser = async (req, res, next) => {
-    try {
-        const userId = req.userId
-        const password = req.body.password
-
-        const user = await User.findOne({_id: userId})
-        if (!user)
-            return throwError(`user not found`, 404, next)
-
-        const passwordMatch = await bcrypt.compare(password, user.password)
-        if (!passwordMatch)
-            return throwError('incorrect password', 401, next)
-
-        await User.deleteOne({_id: mongoose.Types.ObjectId(userId)})
-
-        res.status(200).json({
-            message: 'User deleted',
-            user: user
+            token: token,
+            userId: user._id,
+            username: user.username
         })
     } catch (err) {
         return throwError(err, 500, next)

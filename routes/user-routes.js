@@ -3,7 +3,6 @@ const {body} = require('express-validator')
 
 const userController = require('../controllers/user-controller')
 const User = require('../models/user')
-const authenticate = require('../middleware/authenticate')
 
 const router = express.Router()
 
@@ -13,7 +12,7 @@ router.put('/signup',
             if (user)
                 return Promise.reject(`user with email: ${value} already exists`)
         })
-    }).normalizeEmail(),
+    }),
     body('username').isLength({min: 8}).trim(),
     body('password').isLength({min: 8, max: 40}).trim(),
     body('confirmPassword').custom((value, { req }) => {
@@ -25,7 +24,5 @@ router.put('/signup',
     }), userController.signup)
 
 router.post('/login', userController.login)
-
-router.delete('/user', authenticate, userController.deleteUser)
 
 module.exports = router

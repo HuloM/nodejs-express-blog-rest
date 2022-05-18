@@ -8,10 +8,9 @@ module.exports = (req, res, next) => {
     if (!authHeader) {
         throwError('not authenticated', 401)
     }
-    const token = authHeader.split(' ')[1]
     let decodedToken
     try {
-        decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY)
+        decodedToken = jwt.verify(authHeader, process.env.JWT_SECRET_KEY)
     } catch (err) {
         throwError(err, 500)
     }

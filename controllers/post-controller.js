@@ -6,27 +6,31 @@ const User = require('../models/user')
 const Comment = require('../models/comment')
 const {throwError} = require('../util/errorHandler')
 
+const POSTS_PER_PAGE = 3
+
 exports.getPosts = async (req, res, next) => {
     try {
-
+        const page = +req.query.page || 1
         // . find() is a method that mongoose creates for its schemas (returns all documents by default)
+        const totalItems = await Post.find().countDocuments()
         const posts = await Post.find()
             // populate() grabs the related data to the reference collection
             // here we are grabbing the user document that belongs to the post
+            .skip((page - 1) * POSTS_PER_PAGE)
+            // limit 4 posts per page
+            .limit(POSTS_PER_PAGE)
             .populate('author')
 
-        posts.map((post) => {
+        posts.forEach((post) => {
             // mapping out data I don't want the front-end to have
-            post.author = {
-                _id: post.author._id,
-                username: post.author.username,
-            }
             post.comments = undefined
+            post.body = undefined
+            post.imageUrl = undefined
             return post
         })
-
         res.status(200).json({
-            posts: posts
+            posts: posts,
+            totalPages: Math.ceil(totalItems / POSTS_PER_PAGE)
         })
     } catch (err) {
         return throwError(err, 500, next)
@@ -39,15 +43,15 @@ exports.getPost = async (req, res, next) => {
 
         const post = await Post.findById(postId)
             .populate('author')
-            .populate('comments')
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'author'
+                }
+            })
 
         if (!post)
             return throwError('post not found', 404, next)
-
-        post.author = {
-            _id: post.author._id,
-            username: post.author.username,
-        }
 
         res.status(200).json({
             post: post
@@ -63,7 +67,7 @@ exports.postPost = async (req, res, next) => {
         const title = req.body.title
         const body = req.body.body
         // multer grabs the image and puts it onto the req.file object
-        const image = req.file.path.replace("\\", "/")
+        const image = req.file.path.replace("\\", "/").replace('public', '')
 
         const userId = req.userId
         const author = await User.findById(userId)

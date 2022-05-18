@@ -4,7 +4,7 @@ const express = require('express')
 const mongoose = require('mongoose')
 require('dotenv').config()
 const multer = require('multer')
-
+const cors = require('cors')
 const postRoutes = require('./routes/post-routes')
 const userRoutes = require('./routes/user-routes')
 
@@ -20,7 +20,8 @@ const storage = multer.diskStorage({
     // setting up custom file names to not overwrite existing files with exact same names
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        cb(null, uniqueSuffix + '-' + file.originalname)
+        const filename = file.originalname.replace('public/', '')
+        cb(null, uniqueSuffix + '-' + filename)
     }
 })
 // check if file is of type png, jpg, or jpeg
@@ -32,6 +33,7 @@ const fileFilter = (req, file, cb) => {
 }
 
 app.use(express.json())
+app.use(cors())
 // able to get images from localhost:8080/images/<image file> without publicly exposing the directory public/images
 app.use('/images', express.static(path.join(__dirname, 'public/images')))
 // configuring express app to use multer with the settings setup above, and only accept a single file upload per request
@@ -48,7 +50,7 @@ app.use((error, req, res, next) => {
     const data = error.data
     res.status(status).json({message: message, data: data})
 })
-
+// node --max-old-space-size=2048 app.js
 // connects to the mongoDB db and if successful will start up server
 mongoose.connect(MONGODB_URI)
     .then(result => {
