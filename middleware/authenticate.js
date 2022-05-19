@@ -8,12 +8,11 @@ module.exports = (req, res, next) => {
     if (!authHeader) {
         throwError('not authenticated', 401)
     }
-    let decodedToken
     try {
-        decodedToken = jwt.verify(authHeader, process.env.JWT_SECRET_KEY)
+        const decodedToken = jwt.verify(authHeader, process.env.JWT_SECRET_KEY)
+        req.userId = decodedToken.user.id
     } catch (err) {
-        throwError(err, 500)
+        throwError(err, 500, next)
     }
-    req.userId = decodedToken.user.id
     next()
 }

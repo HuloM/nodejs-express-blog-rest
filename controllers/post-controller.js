@@ -18,7 +18,7 @@ exports.getPosts = async (req, res, next) => {
             // populate() grabs the related data to the reference collection
             // here we are grabbing the user document that belongs to the post
             .skip((page - 1) * POSTS_PER_PAGE)
-            // limit 4 posts per page
+            // limit 3 posts per page
             .limit(POSTS_PER_PAGE)
             .populate('author')
 
@@ -109,9 +109,13 @@ exports.updatePost = async (req, res, next) => {
             return res.status(422).json({ errors: errors.array() });
         }
 
-        const postId = req.params.postId
         const userId = req.userId
+        const author = await User.findById(userId)
 
+        if (!author)
+            return throwError('user not found', 404, next)
+
+        const postId = req.params.postId
         const post = await Post.findById(postId)
 
         if (!post)
@@ -125,7 +129,7 @@ exports.updatePost = async (req, res, next) => {
 
         let imageUrl = req.body.image || post.imageUrl
         if (req.file) {
-            imageUrl = req.file.path.replace("\\", "/")
+            imageUrl = req.file.path.replace("\\", "/").replace('public', '')
         }
         // remove old image if it was updated to a new image
         if (imageUrl !== post.imageUrl)
@@ -148,8 +152,13 @@ exports.updatePost = async (req, res, next) => {
 
 exports.deletePost = async (req, res, next) => {
     try {
-        const postId = req.params.postId
         const userId = req.userId
+        const author = await User.findById(userId)
+
+        if (!author)
+            return throwError('user not found', 404, next)
+
+        const postId = req.params.postId
         const post = await Post.findById(postId)
 
         if (!post)
