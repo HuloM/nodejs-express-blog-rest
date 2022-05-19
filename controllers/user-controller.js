@@ -5,7 +5,6 @@ require('dotenv').config()
 
 const User = require("../models/user")
 const {throwError} = require("../util/errorHandler")
-const mongoose = require("mongoose")
 
 exports.signup = async (req, res, next) => {
     try {

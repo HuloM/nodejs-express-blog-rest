@@ -129,7 +129,7 @@ exports.updatePost = async (req, res, next) => {
         }
         // remove old image if it was updated to a new image
         if (imageUrl !== post.imageUrl)
-            clearImage(post.imageUrl)
+            clearImage(post.imageUrl, next)
 
         post.title = title
         post.body = body
@@ -157,7 +157,7 @@ exports.deletePost = async (req, res, next) => {
         if (post.author.toString() !== userId)
             return throwError('user is not author of post', 401, next)
 
-        await clearImage(post.imageUrl)
+        await clearImage(post.imageUrl, next)
 
         await Post.deleteOne({_id: postId})
 
@@ -204,10 +204,10 @@ exports.postComment = async (req, res, next) => {
     }
 }
 
-const clearImage = async imagePath => {
+const clearImage = async (imagePath, next) => {
     let filePath = path.join(__dirname, '..', 'public' + imagePath)
     await unlink(filePath, err => {
         if (err)
-            throwError(err, 500)
+            throwError(err, 500, next)
     })
 }
