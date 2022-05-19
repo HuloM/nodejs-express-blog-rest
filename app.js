@@ -16,9 +16,10 @@ app.use(express.json())
 app.use(cors())
 // able to get images from localhost:8080/images/<image file> without publicly exposing the directory public/images
 app.use('/images', express.static(path.join(__dirname, 'public/images')))
-// configuring express app to use multer with the settings setup above, and only accept a single file upload per request
 
+// configuring express app to use multer, and only accept a single file upload per request
 app.use(multer)
+
 app.use(postRoutes)
 app.use(userRoutes)
 

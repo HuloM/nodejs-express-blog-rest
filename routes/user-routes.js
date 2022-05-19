@@ -13,8 +13,10 @@ router.put('/signup',
                 return Promise.reject(`user with email: ${value} already exists`)
         })
     }),
-    body('username').isLength({min: 8}).trim(),
-    body('password').isLength({min: 8, max: 40}).trim(),
+    body('username').isLength({min: 8}).trim()
+        .withMessage('Username too short, min: 8 characters'),
+    body('password').isLength({min: 8, max: 40}).trim()
+        .withMessage('password length must be between 8 and 40 characters'),
     body('confirmPassword').custom((value, { req }) => {
         if (value !== req.body.password) {
             throw new Error('passwords must match');

@@ -11,7 +11,7 @@ const POSTS_PER_PAGE = 3
 
 exports.getPosts = async (req, res, next) => {
     try {
-        const page = +req.query.page || 1
+        const page = +req.params.page || 1
         // . find() is a method that mongoose creates for its schemas (returns all documents by default)
         const totalItems = await Post.find().countDocuments()
         const posts = await Post.find()
