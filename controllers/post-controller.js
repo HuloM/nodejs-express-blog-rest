@@ -5,6 +5,7 @@ const Post = require('../models/post')
 const User = require('../models/user')
 const Comment = require('../models/comment')
 const {throwError} = require('../util/errorHandler')
+const {validationResult} = require('express-validator')
 
 const POSTS_PER_PAGE = 3
 
@@ -29,6 +30,7 @@ exports.getPosts = async (req, res, next) => {
             return post
         })
         res.status(200).json({
+            message: 'Posts Retrieved Successfully',
             posts: posts,
             totalPages: Math.ceil(totalItems / POSTS_PER_PAGE)
         })
@@ -54,6 +56,7 @@ exports.getPost = async (req, res, next) => {
             return throwError('post not found', 404, next)
 
         res.status(200).json({
+            message: 'Post retrieved Successfully',
             post: post
         })
     } catch (err) {
@@ -63,6 +66,11 @@ exports.getPost = async (req, res, next) => {
 
 exports.postPost = async (req, res, next) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
+        }
+
         // multer or json parse will put related data onto req.body
         const title = req.body.title
         const body = req.body.body
@@ -96,6 +104,11 @@ exports.postPost = async (req, res, next) => {
 
 exports.updatePost = async (req, res, next) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
+        }
+
         const postId = req.params.postId
         const userId = req.userId
 
@@ -125,7 +138,7 @@ exports.updatePost = async (req, res, next) => {
         await post.save()
 
         res.status(200).json({
-            message: 'Post updated',
+            message: 'Post Updated Successfully',
             post: post,
         })
     } catch (err) {
@@ -144,12 +157,12 @@ exports.deletePost = async (req, res, next) => {
         if (post.author.toString() !== userId)
             return throwError('user is not author of post', 401, next)
 
-        clearImage(post.imageUrl)
+        await clearImage(post.imageUrl)
 
         await Post.deleteOne({_id: postId})
 
         res.status(200).json({
-            message: 'Post deleted',
+            message: 'Post Deleted Successfully',
             post: post
         })
     } catch (err) {
@@ -159,6 +172,11 @@ exports.deletePost = async (req, res, next) => {
 
 exports.postComment = async (req, res, next) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(422).json({ errors: errors.array() });
+        }
+
         const postId = req.params.postId
         const userId = req.userId
         const commentBody = req.body.comment
@@ -177,7 +195,7 @@ exports.postComment = async (req, res, next) => {
         await post.save()
 
         res.status(200).json({
-            message: 'comment created',
+            message: 'Comment Created Successfully',
             comment: comment,
             postId: postId
         })
@@ -187,7 +205,7 @@ exports.postComment = async (req, res, next) => {
 }
 
 const clearImage = async imagePath => {
-    let filePath = path.join(__dirname, '..', imagePath)
+    let filePath = path.join(__dirname, '..', 'public' + imagePath)
     await unlink(filePath, err => {
         if (err)
             throwError(err, 500)
