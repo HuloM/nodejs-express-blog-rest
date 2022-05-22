@@ -117,16 +117,22 @@ exports.updatePost = async (req, res, next) => {
 
         const postId = req.params.postId
         const post = await Post.findById(postId)
+            .populate('author')
+            .populate({
+                path: 'comments',
+                populate: {
+                    path: 'author'
+                }
+            })
 
         if (!post)
             return throwError('post not found', 404, next)
-        if (post.author.toString() !== userId)
+        if (post.author._id.toString() !== userId)
             return throwError('user is not author of post', 401, next)
 
         // if multer parsed info then grab that if not then grab post elements
         const title = req.body.title || post.title
         const body = req.body.body || post.body
-
         let imageUrl = req.body.image || post.imageUrl
         if (req.file) {
             imageUrl = req.file.path.replace("\\", "/").replace('public', '')

@@ -23,13 +23,13 @@ router.post('/posts',
     authenticate, postsController.postPost)
 
 router.put('/post/:postId',
-    body('title').isLength({min: 15}).trim()
+    body('title').isLength({min: 15}).trim().optional({ nullable: true })
         .withMessage('Title is too short, min: 15 characters'),
-    body('body').isLength({min: 25}).trim()
+    body('body').isLength({min: 25}).trim().optional({ nullable: true })
         .withMessage('Body is too short, min: 25 characters'),
     check('image').optional({ nullable: true })
         .custom((value, {req}) => {
-            return req.file.mimetype === 'image/png' || req.file.mimetype === 'image/jpg' || req.file.mimetype === 'image/jpeg'
+            return req.file === undefined || req.file.mimetype === 'image/png' || req.file.mimetype === 'image/jpg' || req.file.mimetype === 'image/jpeg'
         })
         .withMessage('incorrect file type submitted (accepted: PNG, JPG, JPEG)'),
     authenticate, postsController.updatePost)

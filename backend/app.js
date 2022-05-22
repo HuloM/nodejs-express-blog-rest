@@ -8,6 +8,8 @@ const cors = require('cors')
 const postRoutes = require('./routes/post-routes')
 const userRoutes = require('./routes/user-routes')
 const multer = require('./middleware/multerSetup')
+const {throwError} = require ('./util/errorHandler')
+
 const MONGODB_URI = process.env.MONGODB_HOST
 
 const app = express()
@@ -25,7 +27,6 @@ app.use(userRoutes)
 
 // default error handler for express
 app.use((error, req, res, next) => {
-    console.log(error)
     const status = error.statusCode || 500
     const message = error.message
     const data = error.data
