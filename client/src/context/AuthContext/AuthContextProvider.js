@@ -2,6 +2,8 @@ import React, {useState, useEffect, useCallback} from 'react'
 
 import AuthContext from './auth-context'
 
+const axios = require('axios')
+
 const AuthProvider = props => {
     // state variables that hold user related data if they are logged in.
 
@@ -11,7 +13,7 @@ const AuthProvider = props => {
     const [userId, setUserId] = useState('')
     const [authError, setAuthError] = useState('')
 
-    const ENDPOINT_URL = 'http://localhost:8080'
+    const ENDPOINT_URL = 'http://localhost:8080/api'
 
     const UserSignupHandler = async authdata => {
         setAuthError('')
@@ -26,18 +28,19 @@ const AuthProvider = props => {
         formData.append('confirmPassword', authdata.confirmPassword)
         console.log(formData)
         // sends a PUT request to the signup endpoint that will use the form data to create a new user
-        const response = await fetch(`${ENDPOINT_URL}/signup`, {
-            method: 'PUT',
-            body: formData
+        const response = await axios.put(`${ENDPOINT_URL}/signup`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
         })
-        const data = await response.json()
+        const data = await response.data
+        console.log(data)
         if (response.status !== 200) {
             if (response.status !== 422)
             {
                 setAuthError('Error signing up user, please try again later')
                 return
             }
-            // const data = await response.json()
             setAuthError(data.message)
         }
     }
@@ -49,11 +52,13 @@ const AuthProvider = props => {
         formData.append('email', authData.email)
         formData.append('password', authData.password)
 
-        const response = await fetch(`${ENDPOINT_URL}/login`, {
-            method: 'POST',
-            body: formData
+        const response = await axios.post(`${ENDPOINT_URL}/login`,  formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
         })
-        const data = await response.json()
+        const data = await response.data
+        console.log(data)
         if (response.status !== 201) {
             console.log('err')
             if (response.status !== 422 && response.status !== 401)

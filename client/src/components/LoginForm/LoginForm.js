@@ -15,7 +15,7 @@ const LoginForm = () => {
         resetOnFormSubmitHandler: resetPassword
     } = useInput(useCallback(
         input => input.trim() !== '' && input.length > 8
-    ))
+    , []))
 
     const {
         enteredInput: emailInput,
@@ -31,6 +31,8 @@ const LoginForm = () => {
         const email = emailInput
         const password = passwordInput
         ctx.UserLoginHandler({email: email, password: password})
+        resetPassword()
+        resetEmail()
     }
     if (emailIsValid && passwordIsValid)
         formIsValid = true

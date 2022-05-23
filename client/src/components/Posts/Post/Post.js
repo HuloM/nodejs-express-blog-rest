@@ -1,7 +1,6 @@
 import {useContext, useState} from 'react'
 import Modal from '../../UI/Modal/Modal'
 import IndividualPost from '../IndividualPost/IndividualPost'
-import authContext from '../../../context/AuthContext/auth-context'
 import postContext from '../../../context/PostContext/post-context'
 
 

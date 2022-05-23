@@ -53,6 +53,8 @@ const EditPostForm = props => {
         props.onCloseForm()
     }
 
+    const formIsValid = titleIsValid && bodyIsValid
+
     return (
         <div className='pt-4 flex h-fit'>
             <form onSubmit={handleFormSubmit} className='card bg-gray-500 justify-between grow w-96'>
@@ -89,7 +91,8 @@ const EditPostForm = props => {
                                 onChange={onImageUploadChange}/>
                     </label>
                 </div>
-                <button type='submit' className='rounded-full bg-gray-900 hover:bg-blue-700 text-white px-4 py-2 mt-1'>Submit</button>
+                <button type='submit' disabled={!formIsValid} className={`rounded-full 
+                        ${formIsValid ? 'bg-gray-900 hover:bg-blue-700' : 'bg-gray-600'} text-white px-4 py-2 mt-1`}>Submit</button>
                 <button onClick={handleCancelSubmit} className='rounded-full bg-gray-900 hover:bg-blue-700 text-white px-4 py-2 mt-1'>Cancel</button>
             </form>
         </div>

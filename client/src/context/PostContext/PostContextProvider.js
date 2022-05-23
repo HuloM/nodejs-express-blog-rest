@@ -2,6 +2,8 @@ import React, {useState} from 'react'
 
 import PostContext from './post-context'
 
+const axios = require('axios')
+
 const PostProvider = props => {
     // state variables that hold post related data
 
@@ -21,7 +23,7 @@ const PostProvider = props => {
     })
     const [postError, setPostError] = useState('')
 
-    const ENDPOINT_URL = 'http://localhost:8080'
+    const ENDPOINT_URL = 'http://localhost:8080/api'
 
 
     // sends a POST request to the posts endpoint
@@ -32,27 +34,29 @@ const PostProvider = props => {
         formData.append('body', postData.bodyInput)
         formData.append('image', postData.image)
 
-        const response = await fetch(ENDPOINT_URL + '/posts/', {
-            method: 'POST',
+        const response = await axios.post(`${ENDPOINT_URL}/posts/`, formData, {
             headers: {
-                Authorization: token
-            },
-            body: formData
+                Authorization: token,
+                'Content-Type': 'multipart/form-data'
+            }
         })
-        const data = await response.json()
+        const data = response.data
+        console.log(data)
         if (response.status !== 200) {
             setPostError(data.message)
             return
         }
-        return data.message
+        await onRetrievePostsHandler(page)
     }
 
     // sends a GET request to the post endpoint
     // that will retrieve a single post
     const onRetrievePostHandler = async postId => {
-        const response = await fetch(ENDPOINT_URL +  `/post/${postId}`, { method: 'GET' })
+        const response = await axios.get(`${ENDPOINT_URL}/post/${postId}`)
 
-        const data = await response.json()
+        const data = response.data
+
+        console.log(data)
         if (response.status !== 200) {
             setPostError(data.message)
             return
@@ -62,13 +66,14 @@ const PostProvider = props => {
 
     // sends a GET request to the posts endpoint
     // that will  retrieve a paginated list of posts
-    const onRetrievePostsHandler = async (page) => {
-        setPage(page)
-        const method = 'GET'
-        const posts = await fetch(ENDPOINT_URL +  '/posts/' + page, {
-            method: method
-        })
-        const data = await posts.json()
+    const onRetrievePostsHandler = async (pageNum) => {
+        setPage(pageNum)
+
+        const response = await axios.get(`${ENDPOINT_URL}/posts/${pageNum}`)
+
+        const data = response.data
+
+        console.log(data)
         setPosts(data.posts)
         setTotalPages(data.totalPages)
     }
@@ -80,14 +85,13 @@ const PostProvider = props => {
         formData.append('title', postData.titleInput)
         formData.append('body', postData.bodyInput)
         formData.append('image', postData.image)
-        const response = await fetch(ENDPOINT_URL +  `/post/${postId}`, {
-            method: 'PUT',
+        const response = await axios.put(`${ENDPOINT_URL}/post/${postId}`, formData, {
             headers: {
-                Authorization: token
-            },
-            body: formData
+                Authorization: token,
+                'Content-Type': 'multipart/form-data'
+            }
         })
-        const data = await response.json()
+        const data = await response.data
         console.log(data)
         if (response.status !== 200) {
             setPostError(data.message)
@@ -99,13 +103,13 @@ const PostProvider = props => {
     // sends a DELETE request to the post endpoint
     // that will delete a post
     const onDeletePostHandler = async (postId, token) => {
-        const response = await fetch(`http://localhost:8080/post/${postId}`, {
-            method: 'DELETE',
+        const response = await axios.delete(`${ENDPOINT_URL}/post/${postId}`,{
             headers: {
-                Authorization: token
+                Authorization: token,
             }
         })
-        const data = await response.json()
+        const data = await response.data
+        console.log(data)
         if (response.status !== 200) {
             setPostError(data.message)
             return
@@ -118,20 +122,18 @@ const PostProvider = props => {
         const formData = new FormData()
         formData.append('comment', commentData)
 
-        const response = await fetch(
-            ENDPOINT_URL +  `/post/comments/${postId}`, {
-                method: 'POST',
+        const response = await axios.post(`${ENDPOINT_URL}/post/comments/${postId}`, formData, {
                 headers: {
-                    Authorization: token
-                },
-                body: formData
+                    Authorization: token,
+                    'Content-Type': 'multipart/form-data'
+                }
             })
-        const data = await response.json()
+        const data = await response.data
         console.log(data)
         if (response.status !== 200) {
             setPostError(data.message)
-            return
         }
+        await onRetrievePostHandler(postId)
     }
 
     // pass post context values to PostContext provider

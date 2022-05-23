@@ -7,7 +7,7 @@ const Posts = () => {
 
     useEffect(() => {
         postCtx.onRetrievePostsHandler(1)
-    },[])
+    }, [])
 
     const onNextClickHandler = () => {
         postCtx.onRetrievePostsHandler(postCtx.page + 1)
