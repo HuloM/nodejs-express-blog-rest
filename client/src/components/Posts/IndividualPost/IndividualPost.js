@@ -36,7 +36,7 @@ const IndividualPost = props => {
     }
 
     return (
-        <>
+        <div className="scrollbar-thin overflow-y-auto max-h-[48rem] scroll-smooth scroll-m-auto">
             {openEditForm && <Modal><EditPostForm id={props.id} onCloseForm={CloseEditFormHandler}
             title={postCtx.individualPost.title} body={postCtx.individualPost.body}/></Modal>}
             <div className="text-black text-2xl text-center font-bold">
@@ -44,9 +44,9 @@ const IndividualPost = props => {
             </div>
             <div className="flex justify-center max-h-96 w-fit">
                 {/*Django: 'http://localhost:8080' Flask: 'http://localhost:8080/static/' NodeJS: 'http://localhost:8080'*/}
-                <img src={'http://localhost:8080' + postCtx.individualPost.imageUrl.replace('public', '')} alt="alt"/>
+                <img src={'http://localhost:8080/api' + postCtx.individualPost.imageUrl.replace('public', '')} alt="alt"/>
             </div>
-            <div className="scrollbar-thin overflow-y-auto max-h-96 text-justify scroll-smooth scroll-m-auto">
+            <div className="scrollbar-thin overflow-y-auto max-h-56 text-justify scroll-smooth scroll-m-auto">
                 <p className="m-auto">{postCtx.individualPost.body}</p>
             </div>
             <div className="text-right font-bold">
@@ -73,7 +73,7 @@ const IndividualPost = props => {
                 {postCtx.individualPost.comments !== undefined && postCtx.individualPost.comments.length > 0 &&
                     <Comments comments={postCtx.individualPost.comments}/>}
             </div>
-        </>
+        </div>
     )
 }
 

@@ -4,6 +4,9 @@ module.exports = {
     ],
     theme: {
         extend: {
+            maxHeight: {
+                '128': '32rem',
+            },
             keyframes: {
                 'slide-down': {
                     '0%': {opacity: 0, transform: 'translateY(-3rem)'},

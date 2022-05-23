@@ -1,6 +1,13 @@
 version: '3'
 services:
-  server:
+  nginx:
+    restart: always
+    build:
+      dockerfile: Dockerfile.dev
+      context: ./nginx
+    ports:
+      - '8080:80'
+  api:
     build:
       dockerfile: Dockerfile.dev
       context: ./server
@@ -17,3 +24,5 @@ services:
     volumes:
       - /app/node_modules
       - ./client:/app
+    environment:
+      - WDS_SOCKET_PORT=0
