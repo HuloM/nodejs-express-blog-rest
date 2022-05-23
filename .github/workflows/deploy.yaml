@@ -32,9 +32,9 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-          application_name: <>
-          environment_name: <>
-          existing_bucket_name: <>
-          region: <>
+          application_name: NodeJS blog webapp-api
+          environment_name: Nodejsblog-env
+          existing_bucket_name: elasticbeanstalk-us-west-2-740966496247
+          region: us-west-2
           version_label: ${{ github.sha }}
           deployment_package: deploy.zip

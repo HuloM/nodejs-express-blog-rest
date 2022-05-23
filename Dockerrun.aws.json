@@ -1,0 +1,32 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
+    {
+      "name": "react-client",
+      "image": "hulom/blog-client",
+      "hostname": "client",
+      "essential": false
+    },
+    {
+      "name": "nodejs-server",
+      "image": "hulom/blog-server",
+      "hostname": "api",
+      "essential": false
+    },
+    {
+      "name": "nginx-proxy",
+      "image": "hulom/blog-nginx",
+      "essential": true,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ],
+      "links": [
+        "react-client",
+        "nodejs-server"
+      ]
+    }
+  ]
+}
