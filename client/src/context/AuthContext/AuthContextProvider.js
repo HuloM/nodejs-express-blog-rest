@@ -13,7 +13,7 @@ const AuthProvider = props => {
     const [userId, setUserId] = useState('')
     const [authError, setAuthError] = useState('')
 
-    const ENDPOINT_URL = 'http://localhost:8080/api'
+    const ENDPOINT_URL = '/api'
 
     const UserSignupHandler = async authdata => {
         setAuthError('')

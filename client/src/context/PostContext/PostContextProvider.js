@@ -23,7 +23,7 @@ const PostProvider = props => {
     })
     const [postError, setPostError] = useState('')
 
-    const ENDPOINT_URL = 'http://localhost:8080/api'
+    const ENDPOINT_URL = '/api'
 
 
     // sends a POST request to the posts endpoint
