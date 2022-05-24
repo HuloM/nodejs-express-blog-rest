@@ -34,8 +34,7 @@ const AuthProvider = props => {
             }
         })
         const data = await response.data
-        console.log(data)
-        if (response.status !== 200) {
+        if (response.status !== 201) {
             if (response.status !== 422)
             {
                 setAuthError('Error signing up user, please try again later')
