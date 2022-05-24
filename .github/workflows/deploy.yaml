@@ -32,8 +32,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-          application_name: NodeBlog
-          environment_name: Nodeblog-env
+          application_name: NodeJSBlog
+          environment_name: Nodejsblog-env
           existing_bucket_name: elasticbeanstalk-us-west-2-740966496247
           region: us-west-2
           version_label: ${{ github.sha }}
