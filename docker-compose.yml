@@ -2,18 +2,15 @@ version: "3"
 services:
   client:
     image: "hulom/blog-client"
-    mem_limit: 128m
     hostname: client
   server:
     image: "hulom/blog-server"
-    mem_limit: 128m
     hostname: api
     environment:
       - MONGODB_HOST
       - JWT_SECRET_KEY
   nginx:
     image: "hulom/blog-nginx"
-    mem_limit: 128m
     hostname: nginx
     ports:
       - "80:80"
