@@ -34,7 +34,7 @@ const PostProvider = props => {
         formData.append('body', postData.bodyInput)
         formData.append('image', postData.image)
 
-        const response = await axios.post(`${ENDPOINT_URL}/posts/`, formData, {
+        const response = await axios.post(`${ENDPOINT_URL}/posts`, formData, {
             headers: {
                 Authorization: token,
                 'Content-Type': 'multipart/form-data'
